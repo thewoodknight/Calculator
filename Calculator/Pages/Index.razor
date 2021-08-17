@@ -1,0 +1,66 @@
+﻿@page "/"
+<style>
+    .clear {
+        clear: both;
+    }
+
+    table, th, td {
+        border: 1px solid black;
+        padding: 2px;
+    }
+
+    td { width: 125px;}
+    th, .rowheader {
+        background: #cacaca;
+        font: bold;
+    }
+</style>
+
+<h2>Router Drilling/Bushing Template Finder</h2>
+<span>Need to make a hole with a router bit, but don't know what combination of bit+bushing will get you there? Use this calculator.<br /><br /></span>
+
+<label for="desired">Desired Hole (mm)</label>
+<input @bind="DesiredHole" name="desired" type="text" />
+<br />
+
+@if (Bits.Count > 0)
+{
+    <table>
+        <tr>
+            <th></th>
+            @foreach (var c in CommonBushings)
+            {
+                <th> @c mm<br />
+                (@FractionExtension.ToFraction(c / 25.4) ")</th>
+            }
+        </tr>
+        @foreach (var b in Bits)
+        {
+            <tr>
+                <td class="rowheader">
+                    @b.BitMetric (@b.BitImperial")
+                </td>
+
+                @foreach (var c in CommonBushings)
+                {
+            <td>
+                @{ var x = b.Combinations.FirstOrDefault(t => t.BushingMetric == c);
+                    if (x != null) 
+                    { 
+                        @(x.TemplateMetric.ToString("N2"))<span>mm</span><br />
+                        @(x.TemplateImperial)<span>"</span><br />
+                    }
+                }
+            </td>
+
+                }
+            </tr>
+        }
+    </table>
+
+    <span>
+        The column headers are common bushings, the rows are common bit sizes, and the intersection is the size template you'd need for that combination to make the desired hole.<br />
+    </span>
+}
+
+<button class="btn btn-primary" @onclick="ConvertClick">Calculate</button>
